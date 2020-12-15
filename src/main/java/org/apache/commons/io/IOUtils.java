@@ -2243,10 +2243,13 @@ public class IOUtils {
      * @param input the <code>InputStream</code> to read from
      * @return the requested byte array
      * @throws IOException          if an I/O error occurs
+     * @throws IllegalArgumentException if input is longer than the maximum Java array length
      */
     public static byte[] toByteArray(final InputStream input) throws IOException {
         try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-            copy(input, output);
+            if (copy(input, output) == -1) {
+                throw new IllegalArgumentException("Stream cannot be longer than Integer max value bytes");
+            }
             return output.toByteArray();
         }
     }
