@@ -62,6 +62,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.function.IOConsumer;
+import org.apache.commons.io.input.CircularInputStream;
 import org.apache.commons.io.input.NullInputStream;
 import org.apache.commons.io.output.AppendableWriter;
 import org.apache.commons.io.output.NullOutputStream;
@@ -1328,6 +1329,15 @@ public class IOUtilsTestCase {
             assertEquals(0, fin.available(), "Not all bytes were read");
             assertEquals(FILE_SIZE, out.length, "Wrong output size");
             TestUtils.assertEqualContent(out, m_testFile);
+        }
+    }
+
+    @Test public void testToByteArray_InputStreamTooLong() throws Exception {
+        try (CircularInputStream cin = new CircularInputStream(new byte[]{65, 65, 65}, ((long)Integer.MAX_VALUE) + 1L)) {
+            IOUtils.toByteArray(cin);
+            fail("IllegalArgumentException expected");
+        } catch (final IllegalArgumentException exc) {
+            assertTrue(exc.getMessage().startsWith("Stream cannot be longer"));
         }
     }
 
